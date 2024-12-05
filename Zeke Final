@@ -1,0 +1,76 @@
+import random
+
+# Parameters
+three_point_percentage = 0.35  # Your 3-point shooting percentage
+two_point_percentage = 0.50     # Your 2-point shooting percentage
+opponent_free_throw_percentage = 0.75  # Opponent's free-throw percentage
+time_remaining = 30              # Time remaining in seconds
+probability_offensive_rebound = 0.3  # Probability of getting an offensive rebound
+probability_win_overtime = 0.6   # Probability of winning in overtime
+num_trials = 10000               # Number of simulation trials
+
+def simulate_game(strategy):
+    score = 0
+    opponent_score = 0
+    time_left = time_remaining
+
+    if strategy == "3-pointer":
+        # Attempt a 3-pointer
+        if random.random() < three_point_percentage:
+            score += 3  # Made the shot
+        else:
+            # Missed the shot
+            if random.random() < probability_offensive_rebound:
+                score += 2  # Offensive rebound and putback
+            # No points scored
+
+    elif strategy == "foul":
+        # Foul the opponent
+        free_throws = 2  # Assume they get 2 free throws
+        for _ in range(free_throws):
+            if random.random() < opponent_free_throw_percentage:
+                opponent_score += 1  # Opponent makes the free throw
+
+    # Time management logic (simplified)
+    time_left -= 10  # Assume each action takes 10 seconds
+    if time_left <= 0:
+        # Game ends, determine winner
+        if score > opponent_score:
+            return 1  # Win
+        elif score < opponent_score:
+            return 0  # Loss
+        else:
+            # Overtime scenario
+            return 1 if random.random() < probability_win_overtime else 0
+
+    return 1 if score > opponent_score else 0  # Final outcome
+
+def run_simulation():
+    wins_3_pointer = 0
+    wins_foul = 0
+    total_points_3_pointer = 0
+    total_points_foul = 0
+
+    for _ in range(num_trials):
+        # Simulate 3-pointer strategy
+        result = simulate_game("3-pointer")
+        wins_3_pointer += result
+        total_points_3_pointer += result  # Assuming 1 point for win, 0 for loss
+
+        # Simulate foul strategy
+        result = simulate_game("foul")
+        wins_foul += result
+        total_points_foul += result  # Assuming 1 point for win, 0 for loss
+
+    # Calculate percentages
+    win_percentage_3_pointer = (wins_3_pointer / num_trials) * 100
+    win_percentage_foul = (wins_foul / num_trials) * 100
+
+    # Output results
+    print(f"3-Pointer Win Percentage: {win_percentage_3_pointer:.2f}%")
+    print(f"Foul Win Percentage: {win_percentage_foul:.2f}%")
+    print(f"Average Points Scored (3-pointer): {total_points_3_pointer / num_trials:.2f}")
+    print(f"Average Points Scored (Foul): {total_points_foul / num_trials:.2f}")
+
+# Run the simulation
+run_simulation()
